@@ -29,8 +29,7 @@ class Resource
 	private boolean flag = false;
 
 	private Lock lock = new ReentrantLock();
-	private Condition condition_pro = lock.newCondition();
-	private Condition condition_con = lock.newCondition();
+	private Condition condition = lock.newCondition();
 
 	//t1 t2
 	public void Set(String name) throws InterruptedException
@@ -41,12 +40,12 @@ class Resource
 				{
 //					while(flag)
 					if(flag)
-						condition_pro.await();
+						condition.await();
 			
 					this.name = name + "--" + count++;
 					System.out.println(Thread.currentThread().getName()+ "...producer" + this.name);
 					flag = true;
-					condition_con.signal();
+					condition.signalAll();
 				}
 			finally
 				{
@@ -62,10 +61,10 @@ class Resource
 				{
 //					while(!flag)//t3 wait, and t4 wait
 					if(!flag)
-						condition_con.await();
+						condition.await();
 					System.out.println(Thread.currentThread().getName()+ "......consumer" + this.name);
 					flag = false;
-					condition_pro.signal();
+					condition.signalAll();
 				}
 			finally
 				{
